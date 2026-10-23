@@ -98,7 +98,8 @@ Each answer was checked against the PDF text:
 
 | | |
 |---|---|
-| Full interface | <img width="1469" height="802" alt="Screenshot 2026-10-23 at 3 51 15 PM" src="https://github.com/user-attachments/assets/e48888ad-e111-4c40-b915-f814a90393e2" />
+| Full interface 
+| <img width="1469" height="802" alt="Screenshot 2026-10-23 at 3 51 15 PM" src="https://github.com/user-attachments/assets/e48888ad-e111-4c40-b915-f814a90393e2" />
  |
 | Q1–Q5 | <img width="1470" height="885" alt="Screenshot 2026-10-23 at 3 48 16 PM" src="https://github.com/user-attachments/assets/82d3e5c6-408e-43b6-a417-8050d6d9826e" />
 <img width="1470" height="886" alt="Screenshot 2026-10-23 at 3 49 12 PM" src="https://github.com/user-attachments/assets/d91243db-90ef-4cf1-8223-9fc5604eac5b" /><img width="1470" height="805" alt="Screenshot 2026-10-23 at 3 53 46 PM" src="https://github.com/user-attachments/assets/3da18392-4ba0-4fa0-b7bf-ce03d78c3bb0" />
