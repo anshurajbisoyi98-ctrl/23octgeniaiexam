@@ -1,0 +1,7 @@
+[
+  {"id": 1, "question": "What are the three main types of inspection?", "expected_found": true},
+  {"id": 2, "question": "What does a maintenance factor of two mean?", "expected_found": true},
+  {"id": 3, "question": "What is the purchase price of this gas turbine?", "expected_found": false},
+  {"id": 4, "question": "What is the melting point of titanium?", "expected_found": false},
+  {"id": 5, "question": "What is the recommended combustion-inspection interval in hours?", "expected_found": true}
+]

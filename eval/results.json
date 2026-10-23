@@ -1,0 +1,85 @@
+[
+  {
+    "id": 1,
+    "question": "What are the three main types of inspection?",
+    "expected_found": true,
+    "found": true,
+    "correct": true,
+    "output": "Answer: Maintenance inspection types may be broadly classified into standby, running, and disassembly inspections. Additionally, scheduled inspections for the GE Vernova Annular/Silo fleet are categorized as Type A Visual Inspection, Type B Visual Inspection, and Type C Major Inspection.\nSource: Page 25 — Maintenance Inspections; Page 32 — ABC Inspections For Annular/Silo Fleet",
+    "citations": [
+      {
+        "page": 25,
+        "section": "Maintenance Inspections",
+        "quote": "Maintenance inspection types may be broadly classified as standby, running, and disassembly inspections."
+      },
+      {
+        "page": 32,
+        "section": "ABC Inspections For Annular/Silo Fleet",
+        "quote": "Type A Visual Inspection, Type B Visual Inspection, and Type C Major Inspection."
+      }
+    ],
+    "top_score": 0.726,
+    "latency_ms": 24731
+  },
+  {
+    "id": 2,
+    "question": "What does a maintenance factor of two mean?",
+    "expected_found": true,
+    "found": true,
+    "correct": true,
+    "output": "Answer: A maintenance factor of two indicates a maintenance interval that is half of the baseline interval. Maintenance factors are established for operation that differs from the baseline to quantify the effect on component lives and provide the required increase in maintenance frequency.\nSource: Page 9 — Major Factors Influencing Maintenance and Equipment Life",
+    "citations": [
+      {
+        "page": 9,
+        "section": "Major Factors Influencing Maintenance and Equipment Life",
+        "quote": "a maintenance factor of two would indicate a maintenance interval that is half of the baseline interval."
+      }
+    ],
+    "top_score": 0.783,
+    "latency_ms": 3766
+  },
+  {
+    "id": 3,
+    "question": "What is the purchase price of this gas turbine?",
+    "expected_found": false,
+    "found": false,
+    "correct": true,
+    "output": "Not found",
+    "citations": [],
+    "top_score": 0.682,
+    "latency_ms": 4686
+  },
+  {
+    "id": 4,
+    "question": "What is the melting point of titanium?",
+    "expected_found": false,
+    "found": false,
+    "correct": true,
+    "output": "Not found",
+    "citations": [],
+    "top_score": 0.576,
+    "latency_ms": 66
+  },
+  {
+    "id": 5,
+    "question": "What is the recommended combustion-inspection interval in hours?",
+    "expected_found": true,
+    "found": true,
+    "correct": true,
+    "output": "Answer: The recommended combustion-inspection interval depends on the turbine model and combustor configuration. Baseline inspection intervals in Figure 36 range from 8,000 hours up to 32,000 hours (for example, 12,000 hours for 6B.03, 8,000 or 12,000 hours for 7E.03/9E.03, and 24,000 or 32,000 hours for various F-class DLN units). To determine the recommended inspection interval for a specific application, the baseline inspection interval is divided by the calculated maintenance factor.\nSource: Page 36 — Combustion Inspection Interval; Page 33 — Inspection Intervals",
+    "citations": [
+      {
+        "page": 36,
+        "section": "Combustion Inspection Interval",
+        "quote": "maintenance factor is divided into the recommended baseline inspection interval."
+      },
+      {
+        "page": 33,
+        "section": "Inspection Intervals",
+        "quote": "Baseline recommended inspection intervals: base load – natural gas fuel – dry"
+      }
+    ],
+    "top_score": 0.819,
+    "latency_ms": 10440
+  }
+]
