@@ -9,8 +9,8 @@ Three layers decide "Not found":
 from __future__ import annotations
 
 import re
+import threading
 import time
-from functools import lru_cache
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
@@ -60,15 +60,23 @@ Context:
 Question: {question}"""
 
 
-@lru_cache
+_store: Chroma | None = None
+_store_lock = threading.Lock()
+
+
 def get_store() -> Chroma:
-    settings = get_settings()
-    return Chroma(
-        collection_name=settings.collection_name,
-        embedding_function=get_embeddings(settings),
-        persist_directory=str(settings.chroma_dir),
-        collection_metadata={"hnsw:space": "cosine"},
-    )
+    """Open the persistent Chroma collection once (thread-safe, the server answers in threads)."""
+    global _store
+    with _store_lock:
+        if _store is None:
+            settings = get_settings()
+            _store = Chroma(
+                collection_name=settings.collection_name,
+                embedding_function=get_embeddings(settings),
+                persist_directory=str(settings.chroma_dir),
+                collection_metadata={"hnsw:space": "cosine"},
+            )
+    return _store
 
 
 def get_llm(settings: Settings) -> BaseChatModel:

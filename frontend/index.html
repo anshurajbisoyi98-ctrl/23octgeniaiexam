@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Turbine Maintenance Assistant</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27none%27 stroke=%27%23ff8a3d%27 stroke-width=%274%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%274%27 fill=%27%23ff8a3d%27/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0d12;
+      --panel: rgba(16, 21, 29, 0.78);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e6ebf2;
+      --muted: #8b96a8;
+      --accent: #ff8a3d;
+      --accent-soft: rgba(255, 138, 61, 0.14);
+      --notfound: #8f9bb3;
+      --error: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: radial-gradient(ellipse at 30% 40%, #121a26 0%, var(--bg) 70%);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      overflow: hidden;
+    }
+    #scene { position: fixed; inset: 0; z-index: 0; display: block; }
+
+    .layout {
+      position: relative; z-index: 1; height: 100%;
+      display: grid; grid-template-columns: 1fr minmax(320px, 560px);
+      gap: 24px; padding: 24px;
+    }
+    .hero { align-self: end; padding: 0 0 12px 12px; max-width: 520px; }
+    .hero h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.1; margin: 0 0 12px; font-weight: 600; letter-spacing: -0.02em; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--muted); margin: 0; line-height: 1.5; }
+
+    .panel {
+      display: flex; flex-direction: column; min-height: 0;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+    .panel header { padding: 18px 20px 12px; border-bottom: 1px solid var(--border); }
+    .panel header .title { font-weight: 600; }
+    .status { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .dot.ok { background: #3ddc97; }
+    .dot.down { background: var(--error); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+    .chip {
+      font: inherit; font-size: 12.5px; color: var(--text); cursor: pointer;
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 12px; transition: border-color .15s, background .15s;
+    }
+    .chip:hover, .chip:focus-visible { border-color: var(--accent); background: var(--accent-soft); outline: none; }
+
+    .messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+    .empty { color: var(--muted); font-size: 14px; text-align: center; margin: auto; }
+    .q { align-self: flex-end; background: var(--accent-soft); border: 1px solid rgba(255, 138, 61, .3); padding: 10px 14px; border-radius: 14px 14px 4px 14px; max-width: 85%; font-size: 14px; }
+    .card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.55; }
+    .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+    .card .answer { white-space: pre-wrap; }
+    .card.notfound { border-left-color: var(--notfound); color: var(--notfound); }
+    .card.error { border-left-color: var(--error); color: var(--error); }
+    .card.loading { color: var(--muted); }
+    .cites { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .cite {
+      font-size: 12px; color: var(--accent); text-decoration: none;
+      border: 1px solid rgba(255, 138, 61, .35); border-radius: 6px; padding: 3px 8px;
+    }
+    .cite:hover { background: var(--accent-soft); }
+    .meta { font-size: 11px; color: var(--muted); margin-top: 8px; }
+    .pulse::after { content: ""; display: inline-block; width: 1em; animation: dots 1.2s steps(4) infinite; }
+    @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+
+    form { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--border); }
+    input {
+      flex: 1; font: inherit; font-size: 14px; color: var(--text);
+      background: rgba(0, 0, 0, .3); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+    button.send {
+      font: inherit; font-weight: 600; font-size: 14px; color: #1a0f06; cursor: pointer;
+      background: var(--accent); border: 0; border-radius: 10px; padding: 0 18px;
+    }
+    button.send:disabled { opacity: .5; cursor: wait; }
+
+    @media (max-width: 860px) {
+      body { overflow: auto; }
+      .layout { grid-template-columns: 1fr; padding: 16px; height: auto; min-height: 100%; }
+      .hero { padding: 8px 4px 0; }
+      .panel { height: calc(100vh - 170px); min-height: 480px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .pulse::after { animation: none; content: "..."; } }
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <main class="layout">
+    <section class="hero">
+      <h1>Gas turbine <span>maintenance</span> assistant</h1>
+      <p>Answers come only from GE GER-3620 Rev P, “Heavy-Duty Gas Turbine Operating and Maintenance
+        Considerations”, with the page and section for every answer. If the document doesn’t say, you get “Not found”.</p>
+    </section>
+
+    <section class="panel" aria-label="Chat">
+      <header>
+        <div class="title">Ask the manual</div>
+        <div class="status"><span class="dot" id="dot"></span><span id="status">Checking backend…</span></div>
+      </header>
+      <div class="chips" id="chips"></div>
+      <div class="messages" id="messages" aria-live="polite">
+        <div class="empty" id="empty">Pick a quick question or type your own.</div>
+      </div>
+      <form id="form">
+        <input id="input" type="text" placeholder="Ask about inspections, intervals, maintenance factors…" autocomplete="off" maxlength="500" aria-label="Question" />
+        <button class="send" id="send" type="submit">Ask</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const QUICK = [
+      "What are the three main types of inspection?",
+      "What does a maintenance factor of two mean?",
+      "What is the purchase price of this gas turbine?",
+      "What is the melting point of titanium?",
+      "What is the recommended combustion-inspection interval in hours?",
+    ];
+    const $ = (id) => document.getElementById(id);
+    const messages = $("messages"), input = $("input"), send = $("send");
+
+    for (const q of QUICK) {
+      const chip = document.createElement("button");
+      chip.className = "chip"; chip.type = "button"; chip.textContent = q;
+      chip.addEventListener("click", () => ask(q));
+      $("chips").appendChild(chip);
+    }
+
+    function add(el) {
+      $("empty")?.remove();
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+      return el;
+    }
+    function div(className, text) {
+      const el = document.createElement("div");
+      el.className = className;
+      if (text !== undefined) el.textContent = text;
+      return el;
+    }
+
+    async function ask(question) {
+      question = question.trim();
+      if (!question || send.disabled) return;
+      input.value = "";
+      send.disabled = true;
+      add(div("q", question));
+      const card = add(div("card loading"));
+      card.appendChild(div("pulse", "Searching the manual"));
+      window.turbine?.setBusy(true);
+
+      try {
+        const res = await fetch("/api/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || `Server error (${res.status})`);
+        render(card, data);
+      } catch (err) {
+        card.className = "card error";
+        card.replaceChildren(div("label", "Error"), div("answer",
+          err instanceof TypeError ? "Can't reach the backend. Is the server running?" : err.message));
+      } finally {
+        send.disabled = false;
+        window.turbine?.setBusy(false);
+        input.focus();
+      }
+    }
+
+    function render(card, data) {
+      if (!data.found) {
+        card.className = "card notfound";
+        card.replaceChildren(div("answer", "Not found"));
+      } else {
+        card.className = "card";
+        const cites = div("cites");
+        const seen = new Set();
+        for (const c of data.citations) {
+          const key = `${c.page}|${c.section}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const a = document.createElement("a");
+          a.className = "cite"; a.href = `/pdf#page=${c.page}`; a.target = "_blank"; a.rel = "noopener";
+          a.title = `“${c.quote}”`;
+          a.textContent = `p. ${c.page} · ${c.section}`;
+          cites.appendChild(a);
+        }
+        card.replaceChildren(div("label", "Answer"), div("answer", data.answer), div("label", "Source"), cites);
+        card.children[2].style.marginTop = "12px";
+      }
+      card.appendChild(div("meta", `${data.latency_ms} ms`));
+    }
+
+    $("form").addEventListener("submit", (e) => { e.preventDefault(); ask(input.value); });
+
+    fetch("/api/health").then((r) => r.json()).then((h) => {
+      $("dot").className = "dot ok";
+      $("status").textContent = `Online · ${h.chunks} chunks indexed · ${h.llm_provider}`;
+    }).catch(() => {
+      $("dot").className = "dot down";
+      $("status").textContent = "Backend offline";
+    });
+  </script>
+
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+
+    const canvas = document.getElementById("scene");
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const small = innerWidth < 860;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 0, 14);
+
+    scene.add(new THREE.AmbientLight(0x6f86a8, 0.6));
+    const key = new THREE.DirectionalLight(0xffffff, 1.4);
+    key.position.set(5, 6, 8);
+    scene.add(key);
+    const glow = new THREE.PointLight(0xff8a3d, 2.5, 20);
+    scene.add(glow);
+
+    // Rotor: a hub with a ring of thin, twisted blades.
+    const rotor = new THREE.Group();
+    const metal = new THREE.MeshStandardMaterial({ color: 0x9aa6b8, metalness: 0.85, roughness: 0.3 });
+    rotor.add(new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 1.2, 48), metal).rotateX(Math.PI / 2));
+    const bladeGeo = new THREE.BoxGeometry(0.16, 3.2, 0.7);
+    bladeGeo.translate(0, 2.7, 0);
+    const BLADES = small ? 18 : 32;
+    for (let i = 0; i < BLADES; i++) {
+      const blade = new THREE.Mesh(bladeGeo, metal);
+      blade.rotation.z = (i / BLADES) * Math.PI * 2;
+      blade.rotation.y = 0.45; // blade pitch
+      rotor.add(blade);
+    }
+    // Outer casing ring
+    const casing = new THREE.Mesh(
+      new THREE.TorusGeometry(4.6, 0.12, 16, 96),
+      new THREE.MeshStandardMaterial({ color: 0x3b4658, metalness: 0.7, roughness: 0.45 })
+    );
+    rotor.add(casing);
+    const turbine = new THREE.Group();
+    turbine.add(rotor);
+    turbine.rotation.set(0.35, -0.55, 0);
+    turbine.position.x = small ? 0 : -3.2;
+    scene.add(turbine);
+
+    // Particles flowing through the ring along the axis; colour shifts from cool blue to hot orange.
+    const COUNT = small ? 400 : 1200;
+    const positions = new Float32Array(COUNT * 3);
+    const colors = new Float32Array(COUNT * 3);
+    const cool = new THREE.Color(0x4aa8ff), hot = new THREE.Color(0xff8a3d), tmp = new THREE.Color();
+    for (let i = 0; i < COUNT; i++) {
+      const r = 1.3 + Math.random() * 3, a = Math.random() * Math.PI * 2;
+      positions.set([Math.cos(a) * r, Math.sin(a) * r, (Math.random() - 0.5) * 16], i * 3);
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    pGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
+      size: 0.06, vertexColors: true, transparent: true, opacity: 0.85, depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }));
+    turbine.add(particles);
+
+    let speed = 0.25, targetSpeed = 0.25;
+    window.turbine = { setBusy: (busy) => { targetSpeed = busy ? 1.6 : 0.25; } };
+
+    const mouse = { x: 0, y: 0 };
+    addEventListener("pointermove", (e) => {
+      mouse.x = e.clientX / innerWidth - 0.5;
+      mouse.y = e.clientY / innerHeight - 0.5;
+    });
+
+    function resize() {
+      renderer.setSize(innerWidth, innerHeight, false);
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+    }
+    addEventListener("resize", resize);
+    resize();
+
+    const clock = new THREE.Clock();
+    function frame() {
+      const dt = Math.min(clock.getDelta(), 0.05);
+      speed += (targetSpeed - speed) * 0.05;
+      rotor.rotation.z -= speed * dt;
+      const pos = pGeo.attributes.position.array, col = pGeo.attributes.color.array;
+      for (let i = 0; i < COUNT; i++) {
+        let z = pos[i * 3 + 2] + dt * (1.5 + speed * 3);
+        if (z > 8) z = -8;
+        pos[i * 3 + 2] = z;
+        tmp.copy(cool).lerp(hot, THREE.MathUtils.smoothstep(z, -1, 2));
+        col.set([tmp.r, tmp.g, tmp.b], i * 3);
+      }
+      pGeo.attributes.position.needsUpdate = true;
+      pGeo.attributes.color.needsUpdate = true;
+      glow.intensity = 2 + speed * 2;
+      camera.position.x += (mouse.x * 1.5 - camera.position.x) * 0.04;
+      camera.position.y += (-mouse.y * 1.0 - camera.position.y) * 0.04;
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    }
+
+    if (reduced) {
+      frame(); // one static frame
+    } else {
+      renderer.setAnimationLoop(frame);
+      // Pause rendering while the tab is hidden.
+      document.addEventListener("visibilitychange", () => {
+        renderer.setAnimationLoop(document.hidden ? null : frame);
+        clock.getDelta();
+      });
+    }
+  </script>
+</body>
+</html>
