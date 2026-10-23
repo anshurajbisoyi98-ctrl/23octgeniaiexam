@@ -1,0 +1,17 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Generated vector store (rebuild with: python -m app.ingest)
+chroma_db/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
